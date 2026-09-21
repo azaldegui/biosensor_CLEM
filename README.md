@@ -1,64 +1,6 @@
 # Biosensor Quantitative Image Analysis Toolkit
 
-A Python suite for automated quantitative analysis of genetically encoded fluorescent biosensors, including **intracellular calcium** (jREX-GECO), **intracellular pH** (pHmScarlet), and **macromolecular crowding** (Sed1). 
-
-This toolkit provides end-to-end pipelines for:
-1. **Alternating Laser Channel Demultiplexing**: De-interleaving multi-channel time-lapse movies acquired under alternating excitation lines.
-2. **Standard Curve Calibration**: Automated peak/valley signal quantification from calibration standards.
-3. **Pixel-Wise Ratiometric & Calibrated Imaging**: Spatial ratio generation with background subtraction and non-linear sigmoidal model inversion.
-4. **Single-Cell Morphometrics**: Automated segmentation mask filtering, cell area calculation, and single-cell ratio/concentration extraction.
-5. **Multimodal Correlative Microscopy (CLEM)**: Correlative light and electron microscopy (CLEM) overlay rendering and publication-ready vector graphic exports.
-
----
-
-## Table of Contents
-- [Pipeline Architecture](#pipeline-architecture)
-- [Biosensor Calibration Parameters](#biosensor-calibration-parameters)
-- [Script Catalog & Usage](#script-catalog--usage)
-  - [1. Data Extraction & Demultiplexing](#1-data-extraction--demultiplexing)
-    - [`extract_channels.py`](#extract_channelspy)
-    - [`ratiometric_calibration_analysis.py`](#ratiometric_calibration_analysispy)
-  - [2. Ratiometric Image Generation & Single-Cell Analysis](#2-ratiometric-image-generation--single-cell-analysis)
-    - [`generate_ratiometric_image_jrex_channels.py`](#generate_ratiometric_image_jrex_channelspy)
-    - [`generate_ratiometric_image_pHmscarlet_channels.py`](#generate_ratiometric_image_phmscarlet_channelspy)
-    - [`generate_ratiometric_image_sed1_channels.py`](#generate_ratiometric_image_sed1_channelspy)
-  - [3. Calibration Curve Inversion](#3-calibration-curve-inversion)
-    - [`convert_ratio2calcium.py`](#convert_ratio2calciumpy)
-    - [`convert_singlecell_F2pH.py`](#convert_singlecell_f2phpy)
-  - [4. Correlative Visualization (CLEM)](#4-correlative-visualization-clem)
-    - [`fancy_overlay.py`](#fancy_overlaypy)
-- [Prerequisites & Installation](#prerequisites--installation)
-
----
-
-## Pipeline Architecture
-
-```mermaid
-flowchart TD
-    A["Raw Multi-Channel Time-Lapse Movies (*.tif)"] --> B["extract_channels.py"]
-    B --> C["Channel 1 & Channel 2 Projections (*_channel_1.tif, *_channel_2.tif)"]
-    
-    A --> D["ratiometric_calibration_analysis.py"]
-    D --> E["In Vitro / Cryo Calibration CSV Standards"]
-    
-    C --> F{"Biosensor Type"}
-    M["Cell Segmentation Masks (*masks.tif)"] --> F
-    
-    F -->|jREX-GECO Calcium| G["generate_ratiometric_image_jrex_channels.py"]
-    F -->|pHmScarlet pH| H["generate_ratiometric_image_pHmscarlet_channels.py"]
-    F -->|Sed1 Crowding| I["generate_ratiometric_image_sed1_channels.py"]
-    
-    G --> J["Calibrated Maps (*.tif) & Single-Cell Metrics (*.csv)"]
-    H --> J
-    I --> J
-    
-    J --> K["convert_ratio2calcium.py / convert_singlecell_F2pH.py"]
-    K --> L["Population Distributions & Statistics"]
-    
-    J --> N["fancy_overlay.py"]
-    EM["EM Search Maps / Tomograms"] --> N
-    N --> O["Publication CLEM Overlays (*.svg, *.png)"]
-```
+A Python suite for automated quantitative analysis of genetically encoded fluorescent biosensors, including **intracellular calcium** (jREX-GECO), **intracellular pH** (pHmScarlet), and **macromolecular crowding** (Sed1).
 
 ---
 
@@ -150,17 +92,6 @@ Quantifies intracellular macromolecular crowding using the **Sed1** biosensor (c
 
 ### 3. Calibration Curve Inversion
 
-#### `convert_ratio2calcium.py`
-Batch converts pre-computed ratiometric TIFF images into calcium concentration maps and extracts image-wide statistics.
-- **Inputs**: Folder of 2D/3D ratiometric TIFF images.
-- **Outputs**: `tomo_calcium_analysis.csv` with columns:
-  - `File`: Source image filename.
-  - `F_ratio_avg`, `F_ratio_std`: Mean and standard deviation of raw fluorescence ratio.
-  - `Ca_avg`, `Ca_std`: Mean and standard deviation of calibrated calcium ($\mu\text{M}$).
-- **Usage**:
-  ```bash
-  python convert_ratio2calcium.py "path/to/ratio_images/*.tif"
-  ```
 
 #### `convert_singlecell_F2pH.py`
 Converts single-cell average ratios from CSV tables into calibrated apparent pH and plots population-level distributions.
